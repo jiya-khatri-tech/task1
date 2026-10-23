@@ -130,8 +130,9 @@ MAILERS = {
     },
 }
 # Authentication Redirects
+# Authentication Redirects
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/admin/'  # Page user goes to after logging in
-LOGOUT_REDIRECT_URL = 'login' 
+LOGIN_REDIRECT_URL = 'dashboard'  # <--- Change '/admin/' to 'dashboard'
+LOGOUT_REDIRECT_URL = 'login'
   # Sends you straight to the admin panel after login
 # OR if you want a custom dashboard later, you can use: LOGIN_REDIRECT_URL = 'dashboard'   # Page user goes to after logging out
