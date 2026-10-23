@@ -2,12 +2,51 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from django.views.generic import RedirectView
-from main.views import dashboard_view  # <--- 1. Import your dashboard view
+from main.views import CustomPasswordResetForm, dashboard_view, register_view
 
 urlpatterns = [
     path('', RedirectView.as_view(url='login/', permanent=False)),
     path('admin/', admin.site.urls),
-    path('login/', auth_views.LoginView.as_view(template_name='main/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    path('dashboard/', dashboard_view, name='dashboard'),  # <--- 2. Add the dashboard route
+    path(
+        'login/',
+        auth_views.LoginView.as_view(template_name='main/login.html'),
+        name='login',
+    ),
+    path(
+        'logout/',
+        auth_views.LogoutView.as_view(next_page='login'),
+        name='logout',
+    ),
+    path('register/', register_view, name='register'),
+    path('dashboard/', dashboard_view, name='dashboard'),
+    # Password Reset Workflow Routes
+    path(
+        'password_reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='main/password_reset.html',
+            form_class=CustomPasswordResetForm,
+        ),
+        name='password_reset',
+    ),
+    path(
+        'password_reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='main/password_reset_done.html'
+        ),
+        name='password_reset_done',
+    ),
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='main/password_reset_confirm.html'
+        ),
+        name='password_reset_confirm',
+    ),
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='main/password_reset_complete.html'
+        ),
+        name='reset_done',
+    ),
 ]
