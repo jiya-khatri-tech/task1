@@ -3,35 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Office Portal</title>
+    <title>Sign In | Plexus Electro CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center vh-100">
 
     <div class="card shadow-sm border-0 p-4" style="width: 400px; border-radius: 12px;">
-        <h3 class="fw-bold mb-2 text-center text-dark">Welcome Back</h3>
-        <p class="text-muted text-center mb-4 small">Sign in to access the office portal</p>
-        
-        <form method="post">
+        <h3 class="fw-bold mb-1 text-center text-dark">Plexus Electro CRM</h3>
+        <p class="text-muted text-center mb-4 small">Sign in to your account</p>
+
+        {% if error %}
+            <div class="alert alert-danger p-2 small mb-3">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
             {% csrf_token %}
-            {{ form.non_field_errors }}
-            
             <div class="mb-3">
-                <label for="id_username" class="form-label fw-semibold small text-secondary">Username</label>
-                {{ form.username }}
+                <label class="form-label fw-semibold small text-secondary">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="Enter username" required>
             </div>
-            
             <div class="mb-3">
-                <label for="id_password" class="form-label fw-semibold small text-secondary">Password</label>
-                {{ form.password }}
+                <label class="form-label fw-semibold small text-secondary">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Enter password" required>
             </div>
-            
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Sign In</button>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mb-3">Sign In</button>
         </form>
-        
-        <div class="text-center mt-3">
-            <a href="{% url 'register' %}" class="small text-decoration-none me-3">Create Account</a>
-            <a href="{% url 'password_reset' %}" class="small text-decoration-none text-muted">Forgot Password?</a>
+
+        <div class="d-flex justify-content-between small">
+            <a href="{% url 'register' %}" class="text-decoration-none">Create Account</a>
+            <a href="{% url 'forgot_password' %}" class="text-decoration-none">Forgot Password?</a>
         </div>
     </div>
 

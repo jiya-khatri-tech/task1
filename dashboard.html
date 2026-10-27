@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Office Portal</title>
-    <!-- Bootstrap 5 CSS CDN -->
+    <title>Dashboard | Plexus Electro CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
@@ -16,7 +14,7 @@
             <!-- Sidebar -->
             <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse text-white min-vh-100 p-3">
                 <div class="position-sticky">
-                    <h4 class="text-white py-3 px-2 fw-bold">Office Portal</h4>
+                    <h4 class="text-white py-3 px-2 fw-bold">Plexus CRM</h4>
                     <ul class="nav flex-column nav-pills">
                         <li class="nav-item mb-2">
                             <a href="#" class="nav-link active bg-primary text-white" aria-current="page">
@@ -39,9 +37,9 @@
                 <!-- Top Navbar -->
                 <nav class="navbar navbar-expand-lg navbar-light bg-white rounded shadow-sm px-4 mb-4">
                     <div class="container-fluid">
-                        <span class="navbar-brand mb-0 h6 text-secondary">Private Repository Workspace</span>
+                        <span class="navbar-brand mb-0 h6 text-secondary">Plexus Electro CRM Workspace</span>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-success me-3">Secure Session Active</span>
+                            <span class="badge bg-success me-3">Verified Session Active</span>
                             <span class="fw-semibold text-dark">{{ request.user.username }}</span>
                         </div>
                     </div>
@@ -51,8 +49,8 @@
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="p-5 bg-gradient text-white rounded shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);">
-                            <h1 class="display-6 fw-bold">Welcome Back, {{ request.user.username }}!</h1>
-                            <p class="lead mb-0">Your authentication, registration, session management, and dashboard workspace are running smoothly.</p>
+                            <h1 class="display-6 fw-bold">Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
+                            <p class="lead mb-0">Your CRM authentication, website OTP email verification, and dashboard are fully functional.</p>
                         </div>
                     </div>
                 </div>
@@ -63,9 +61,9 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title text-dark fw-bold mb-3">
-                                    <i class="bi bi-bar-chart-fill text-primary me-2"></i> System Overview & Metrics
+                                    <i class="bi bi-people-fill text-primary me-2"></i> Client Overview & Leads
                                 </h5>
-                                <p class="card-text text-muted">[ Placeholder: Office task summaries, project diagnostics, and active user stats will be displayed here. ]</p>
+                                <p class="card-text text-muted">[ Placeholder: CRM client records, pipeline metrics, and electro-component inventories. ]</p>
                             </div>
                         </div>
                     </div>
@@ -73,9 +71,9 @@
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-4">
                                 <h5 class="card-title text-dark fw-bold mb-3">
-                                    <i class="bi bi-clock-history text-primary me-2"></i> Recent Office Activity
+                                    <i class="bi bi-clock-history text-primary me-2"></i> Recent System Activity
                                 </h5>
-                                <p class="card-text text-muted">[ Placeholder: Recent repository commits, push logs, and updates for your office review. ]</p>
+                                <p class="card-text text-muted">[ Placeholder: Recent repository commits, push logs, and updates for office review. ]</p>
                             </div>
                         </div>
                     </div>
@@ -84,7 +82,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
