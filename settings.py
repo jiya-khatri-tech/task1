@@ -124,15 +124,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+
+
 # Authentication Redirects
 # Authentication Redirects
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'  # <--- Change '/admin/' to 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
+
+# Standard Email Configuration for Django
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'chhatbarjiya@gmail.com'      # Replace with your actual Gmail address
+EMAIL_HOST_PASSWORD = 'yfty wapn sons zaix'   # Replace with your 16-character App Password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
   # Sends you straight to the admin panel after login
 # OR if you want a custom dashboard later, you can use: LOGIN_REDIRECT_URL = 'dashboard'   # Page user goes to after logging out

@@ -1,12 +1,14 @@
-from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import path
-from django.views.generic import RedirectView
-from main.views import CustomPasswordResetForm, dashboard_view, register_view
+from .views import (
+    CustomPasswordResetForm,
+    dashboard_view,
+    register_view,
+    verify_otp_view,
+)
 
 urlpatterns = [
-    path('', RedirectView.as_view(url='login/', permanent=False)),
-    path('admin/', admin.site.urls),
+    # Website Authentication & Navigation
     path(
         'login/',
         auth_views.LoginView.as_view(template_name='main/login.html'),
@@ -18,8 +20,10 @@ urlpatterns = [
         name='logout',
     ),
     path('register/', register_view, name='register'),
+    path('verify-otp/', verify_otp_view, name='verify_otp'),
     path('dashboard/', dashboard_view, name='dashboard'),
-    # Password Reset Workflow Routes
+    
+    # Password Reset Workflow
     path(
         'password_reset/',
         auth_views.PasswordResetView.as_view(

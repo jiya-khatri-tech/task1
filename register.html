@@ -3,30 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | Office Portal</title>
+    <title>Register | Plexus Electro CRM</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center vh-100">
 
-    <div class="card shadow-sm border-0 p-4" style="width: 420px; border-radius: 12px;">
-        <h3 class="fw-bold mb-2 text-center text-dark">Create Account</h3>
-        <p class="text-muted text-center mb-4 small">Register to access the office system</p>
+    <div class="card shadow-sm border-0 p-4" style="width: 440px; border-radius: 12px;">
+        <h3 class="fw-bold mb-2 text-center text-dark">Client Registration</h3>
+        <p class="text-muted text-center mb-4 small">Sign up for Plexus Electro CRM portal</p>
         
+        <!-- Display non-field errors (like password validation issues) -->
+        {% if form.errors %}
+            <div class="alert alert-danger p-2 small mb-3">
+                <strong>Please correct the errors below:</strong>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
         <form method="post">
             {% csrf_token %}
-            {{ form.non_field_errors }}
             
             {% for field in form %}
                 <div class="mb-3">
                     <label class="form-label fw-semibold small text-secondary">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
-                        <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+                        <div class="text-danger small mt-1">
+                            {% for error in field.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
                     {% endif %}
                 </div>
             {% endfor %}
             
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Register & Login</button>
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">Continue to Email Verification</button>
         </form>
         
         <div class="text-center mt-3">
