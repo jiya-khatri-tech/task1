@@ -25,4 +25,9 @@ urlpatterns = [
         views.reset_password_form_view,
         name='reset_password_form',
     ),
+    path(
+        'register-employee/',
+        views.admin_register_employee_view,
+        name='admin_register_employee',
+    ),
 ]

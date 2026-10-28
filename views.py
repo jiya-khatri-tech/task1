@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
+from .models import Employee
 
 
 # ==========================================
@@ -105,7 +106,15 @@ def login_view(request):
     if user is not None:
       if user.is_active:
         login(request, user)
-        return redirect('dashboard')
+
+        # Differentiate routing based on user type
+        if user.is_staff or user.is_superuser:
+          return redirect(
+              'admin_register_employee'
+          )  # Send admins to admin tasks
+        else:
+          return redirect('dashboard')  # Send regular clients to dashboard
+
       else:
         return render(
             request,
@@ -120,7 +129,6 @@ def login_view(request):
       )
 
   return render(request, 'main/login.html')
-
 
 def dashboard_view(request):
   if not request.user.is_authenticated:
@@ -250,3 +258,53 @@ def reset_password_form_view(request):
       )
 
   return render(request, 'main/password_reset_confirm.html')
+
+def admin_register_employee_view(request):
+  # Restrict access to admin/staff users only
+  if not request.user.is_authenticated or not request.user.is_staff:
+    return redirect('login')
+
+  if request.method == 'POST':
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    password = request.POST.get('password', '').strip()
+    department = request.POST.get('department', '').strip()
+    role = request.POST.get('role', '').strip()
+    phone = request.POST.get('phone', '').strip()
+
+    if User.objects.filter(email=email).exists():
+      return render(
+          request,
+          'main/admin_register_employee.html',
+          {'error': 'An account with this email already exists.'},
+      )
+
+    try:
+      # 1. Create the login user account
+      user = User.objects.create_user(
+          username=email, email=email, password=password
+      )
+      user.first_name = name
+      user.save()
+
+      # 2. Create the Employee profile record
+      Employee.objects.create(
+          user=user,
+          name=name,
+          email=email,
+          department=department,
+          role=role,
+          phone=phone,
+      )
+
+      return redirect(
+          'dashboard'
+      )  # Or redirect to an employee list/success page
+    except Exception as e:
+      return render(
+          request,
+          'main/admin_register_employee.html',
+          {'error': f'Error creating employee: {str(e)}'},
+      )
+
+  return render(request, 'main/admin_register_employee.html')
