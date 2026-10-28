@@ -219,10 +219,25 @@ def reset_password_form_view(request):
 
     try:
       user = User.objects.get(id=user_id)
+
+      # 1. Update password securely in the database (hashed)
       user.password = make_password(new_password)
       user.save()
 
-      # Clear reset session variables
+      # 2. Notify the user via email that their password was changed
+      send_mail(
+          subject='Plexus Electro CRM - Password Successfully Updated',
+          message=(
+              f'Hello {user.username},\n\nYour password for Plexus Electro CRM'
+              ' has been successfully updated.\n\nIf you did not make this'
+              ' change, please contact support immediately.'
+          ),
+          from_email=None,
+          recipient_list=[user.email],
+          fail_silently=False,
+      )
+
+      # 3. Clear reset session variables for security
       request.session.pop('reset_user_id', None)
       request.session.pop('reset_otp', None)
 
