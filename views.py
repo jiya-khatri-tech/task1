@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from .models import Employee
+from django.contrib import messages
 
 
 # ==========================================
@@ -106,27 +107,21 @@ def login_view(request):
     if user is not None:
       if user.is_active:
         login(request, user)
+        messages.success(
+            request, f'Welcome back, {user.first_name or user.username}!'
+        )
 
-        # Differentiate routing based on user type
-        if user.is_staff or user.is_superuser:
-          return redirect(
-              'admin_register_employee'
-          )  # Send admins to admin tasks
-        else:
-          return redirect('dashboard')  # Send regular clients to dashboard
+        # Sabhi users (chahe admin ho ya regular client) ko seedha dashboard par bhejein
+        return redirect('dashboard')
 
       else:
-        return render(
-            request,
-            'main/login.html',
-            {'error': 'Account is not activated. Please complete verification.'},
+        messages.error(
+            request, 'Account is not activated. Please complete verification.'
         )
+        return render(request, 'main/login.html')
     else:
-      return render(
-          request,
-          'main/login.html',
-          {'error': 'Invalid username or password.'},
-      )
+      messages.error(request, 'Invalid username or password.')
+      return render(request, 'main/login.html')
 
   return render(request, 'main/login.html')
 
@@ -308,3 +303,15 @@ def admin_register_employee_view(request):
       )
 
   return render(request, 'main/admin_register_employee.html')
+
+def employee_list_view(request):
+  # Restrict access to admin/staff users only
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrative privileges required.')
+    return redirect('login')
+
+  # Fetch all registered employees in descending order of creation
+  employees = Employee.objects.all().order_by('-created_at')
+  return render(
+      request, 'main/employee_list.html', {'employees': employees}
+  )

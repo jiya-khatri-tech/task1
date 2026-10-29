@@ -17,13 +17,18 @@
                     <h4 class="text-white py-3 px-2 fw-bold">Plexus CRM</h4>
                     <ul class="nav flex-column nav-pills">
                         <li class="nav-item mb-2">
-                            <a href="#" class="nav-link active bg-primary text-white" aria-current="page">
+                            <a href="{% url 'dashboard' %}" class="nav-link active bg-primary text-white" aria-current="page">
                                 <i class="bi bi-speedometer2 me-2"></i> Dashboard
                             </a>
                         </li>
                         
-                        <!-- ADMIN SIDEBAR LINK -->
+                        <!-- ADMIN SIDEBAR LINKS (Only visible to Staff/Superuser) -->
                         {% if request.user.is_staff or request.user.is_superuser %}
+                        <li class="nav-item mb-2">
+                            <a href="{% url 'employee_list' %}" class="nav-link text-white">
+                                <i class="bi bi-people-fill me-2"></i> Employees List
+                            </a>
+                        </li>
                         <li class="nav-item mb-2">
                             <a href="{% url 'admin_register_employee' %}" class="nav-link text-white">
                                 <i class="bi bi-person-plus-fill me-2"></i> Register Employee
@@ -43,6 +48,7 @@
 
             <!-- Main Content Area -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                
                 <!-- Top Navbar -->
                 <nav class="navbar navbar-expand-lg navbar-light bg-white rounded shadow-sm px-4 mb-4">
                     <div class="container-fluid">
@@ -53,6 +59,17 @@
                         </div>
                     </div>
                 </nav>
+
+                <!-- Django Messages Framework Alerts Integration -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                            <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-info-circle-fill{% endif %} me-2"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
 
                 <!-- Welcome Banner -->
                 <div class="row mb-4">
@@ -66,25 +83,32 @@
 
                 <!-- Dashboard Content Grid -->
                 <div class="row">
-                    <!-- ADMIN MANAGEMENT CARD (Only visible to Admins) -->
+                    
+                    <!-- ADMIN MANAGEMENT QUICK ACTION CARDS (Only visible to Admin) -->
                     {% if request.user.is_staff or request.user.is_superuser %}
                     <div class="col-12 mb-4">
                         <div class="card border-0 shadow-sm bg-white border-start border-primary border-4">
-                            <div class="card-body p-4 d-flex justify-content-between align-items-center">
+                            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
                                 <div>
                                     <h5 class="card-title text-dark fw-bold mb-1">
-                                        <i class="bi bi-shield-lock-fill text-primary me-2"></i> Admin Staff Onboarding
+                                        <i class="bi bi-shield-lock-fill text-primary me-2"></i> Admin Staff Management
                                     </h5>
-                                    <p class="card-text text-muted small mb-0">Securely register and provision new employee profiles into the CRM network.</p>
+                                    <p class="card-text text-muted small mb-0">View all registered employee records or add new staff profiles.</p>
                                 </div>
-                                <a href="{% url 'admin_register_employee' %}" class="btn btn-primary px-4 fw-semibold">
-                                    <i class="bi bi-person-plus me-1"></i> Register New Employee
-                                </a>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'employee_list' %}" class="btn btn-outline-primary px-3 fw-semibold">
+                                        <i class="bi bi-people me-1"></i> View Employees
+                                    </a>
+                                    <a href="{% url 'admin_register_employee' %}" class="btn btn-primary px-3 fw-semibold">
+                                        <i class="bi bi-person-plus me-1"></i> Register Employee
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     {% endif %}
 
+                    <!-- Standard Dashboard Cards -->
                     <div class="col-md-6 mb-4">
                         <div class="card border-0 shadow-sm h-100">
                             <div class="card-body p-4">
@@ -106,6 +130,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </main>
         </div>

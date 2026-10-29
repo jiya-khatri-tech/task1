@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Directory | Plexus Electro CRM</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        
+        <!-- Header & Action Button -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Employee Directory</h2>
+                <p class="text-muted mb-0">Plexus Electro CRM - Staff Records</p>
+            </div>
+            <div>
+                <a href="{% url 'admin_register_employee' %}" class="btn btn-primary fw-semibold me-2">
+                    <i class="bi bi-person-plus-fill me-1"></i> Register New Employee
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary fw-semibold">
+                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Django Messages Framework Notifications -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm mb-4" role="alert">
+                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Employee Table Card -->
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <!-- Bootstrap table with table-striped for alternating rows -->
+                    <table class="table table-striped table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col" class="ps-4">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Department</th>
+                                <th scope="col">Role</th>
+                                <th scope="col">Phone</th>
+                                <th scope="col" class="pe-4 text-end">Registered On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emp in employees %}
+                                <tr>
+                                    <th scope="row" class="ps-4 text-secondary">{{ forloop.counter }}</th>
+                                    <td class="fw-semibold text-dark">{{ emp.name }}</td>
+                                    <td><a href="mailto:{{ emp.email }}" class="text-decoration-none">{{ emp.email }}</a></td>
+                                    <td><span class="badge bg-info text-dark">{{ emp.department|default:"N/A" }}</span></td>
+                                    <td><span class="badge bg-secondary">{{ emp.role|default:"Staff" }}</span></td>
+                                    <td class="text-muted">{{ emp.phone|default:"-" }}</td>
+                                    <td class="pe-4 text-end text-muted small">{{ emp.created_at|date:"M d, Y" }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">
+                                        <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
+                                        No registered employees found. Click "Register New Employee" to add staff.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
