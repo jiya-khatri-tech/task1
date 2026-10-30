@@ -36,4 +36,14 @@ urlpatterns = [
         views.admin_register_employee_view,
         name='admin_register_employee',
     ),
+    path(
+        'edit-employee/<int:employee_id>/',
+        views.edit_employee_view,
+        name='edit_employee',
+    ),
+    path(
+        'delete-employee/<int:employee_id>/',
+        views.delete_employee_view,
+        name='delete_employee',
+    ),
 ]

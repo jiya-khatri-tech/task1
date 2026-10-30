@@ -72,11 +72,12 @@
                 {% endif %}
 
                 <!-- Welcome Banner -->
+                <!-- Welcome Banner with High Contrast Background -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="p-5 bg-gradient text-white rounded shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);">
-                            <h1 class="display-6 fw-bold">Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
-                            <p class="lead mb-0">Your CRM authentication, website OTP email verification, and dashboard are fully functional.</p>
+                        <div class="p-5 text-white rounded shadow-sm" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
+                            <h1 class="display-6 fw-bold text-white mb-2">Welcome, {{ request.user.first_name|default:request.user.username }}!</h1>
+                            <p class="lead text-light mb-0" style="opacity: 0.9;">Your CRM authentication, website OTP email verification, and dashboard are fully functional.</p>
                         </div>
                     </div>
                 </div>

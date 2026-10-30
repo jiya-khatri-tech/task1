@@ -315,3 +315,82 @@ def employee_list_view(request):
   return render(
       request, 'main/employee_list.html', {'employees': employees}
   )
+  
+  # -------------------------------------------------------------------
+# EDIT EMPLOYEE VIEW (Pre-populate with current data)
+# -------------------------------------------------------------------
+def edit_employee_view(request, employee_id):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  try:
+    employee = Employee.objects.get(id=employee_id)
+  except Employee.DoesNotExist:
+    messages.error(request, 'Employee record not found.')
+    return redirect('employee_list')
+
+  if request.method == 'POST':
+    name = request.POST.get('name', '').strip()
+    email = request.POST.get('email', '').strip()
+    department = request.POST.get('department', '').strip()
+    role = request.POST.get('role', '').strip()
+    phone = request.POST.get('phone', '').strip()
+
+    try:
+      # Update Employee record details
+      employee.name = name
+      employee.email = email
+      employee.department = department
+      employee.role = role
+      employee.phone = phone
+      employee.save()
+
+      # Also update associated User account info if needed
+      user = employee.user
+      user.email = email
+      user.first_name = name
+      user.save()
+
+      messages.success(
+          request, f'Employee "{name}" updated successfully!'
+      )
+      return redirect('employee_list')
+    except Exception as e:
+      messages.error(request, f'Error updating employee: {str(e)}')
+
+  return render(
+      request, 'main/edit_employee.html', {'employee': employee}
+  )
+
+
+# -------------------------------------------------------------------
+# DELETE EMPLOYEE VIEW (With confirmation integration)
+# -------------------------------------------------------------------
+def delete_employee_view(request, employee_id):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  try:
+    employee = Employee.objects.get(id=employee_id)
+  except Employee.DoesNotExist:
+    messages.error(request, 'Employee record not found.')
+    return redirect('employee_list')
+
+  if request.method == 'POST':
+    emp_name = employee.name
+    # Delete associated user login account as well (cascade handles employee profile)
+    if employee.user:
+      employee.user.delete()
+    else:
+      employee.delete()
+
+    messages.success(
+        request, f'Employee "{emp_name}" has been deleted successfully.'
+    )
+    return redirect('employee_list')
+
+  return render(
+      request, 'main/delete_employee_confirm.html', {'employee': employee}
+  )
