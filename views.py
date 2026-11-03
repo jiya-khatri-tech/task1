@@ -337,8 +337,15 @@ def edit_employee_view(request, employee_id):
     role = request.POST.get('role', '').strip()
     phone = request.POST.get('phone', '').strip()
 
+    # Basic Validation
+    if not name or not email or not role:
+      messages.error(request, 'Name, email, and role fields are required.')
+      return render(
+          request, 'main/edit_employee.html', {'employee': employee}
+      )
+
     try:
-      # Update Employee record details
+      # Validate and update Employee record fields in the database
       employee.name = name
       employee.email = email
       employee.department = department
@@ -346,14 +353,16 @@ def edit_employee_view(request, employee_id):
       employee.phone = phone
       employee.save()
 
-      # Also update associated User account info if needed
-      user = employee.user
-      user.email = email
-      user.first_name = name
-      user.save()
+      # Sync with Django User account model
+      if employee.user:
+        user = employee.user
+        user.email = email
+        user.first_name = name
+        user.save()
 
+      # Display success message after update
       messages.success(
-          request, f'Employee "{name}" updated successfully!'
+          request, f'Employee "{name}" has been updated successfully!'
       )
       return redirect('employee_list')
     except Exception as e:
@@ -364,9 +373,6 @@ def edit_employee_view(request, employee_id):
   )
 
 
-# -------------------------------------------------------------------
-# DELETE EMPLOYEE VIEW (With confirmation integration)
-# -------------------------------------------------------------------
 def delete_employee_view(request, employee_id):
   if not request.user.is_authenticated or not request.user.is_staff:
     messages.error(request, 'Access denied. Administrator privileges required.')
@@ -380,12 +386,12 @@ def delete_employee_view(request, employee_id):
 
   if request.method == 'POST':
     emp_name = employee.name
-    # Delete associated user login account as well (cascade handles employee profile)
     if employee.user:
-      employee.user.delete()
+      employee.user.delete()  # Cascades deletion to Employee profile
     else:
       employee.delete()
 
+    # Display success message after deletion
     messages.success(
         request, f'Employee "{emp_name}" has been deleted successfully.'
     )

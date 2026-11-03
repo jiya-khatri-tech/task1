@@ -18,18 +18,21 @@
                         <h3 class="fw-bold text-dark mb-1">Edit Employee Profile</h3>
                         <p class="text-muted small mb-4">Modify details for {{ employee.name }}</p>
 
+                        <!-- Django Messages Framework Notifications -->
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm mb-3" role="alert">
+                                    <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill{% else %}bi-exclamation-triangle-fill{% endif %} me-2"></i>
                                     {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                             {% endfor %}
                         {% endif %}
 
-                        <!-- Form pre-populated with current employee data -->
+                        <!-- Pre-populated Employee Edit Form -->
                         <form method="POST">
                             {% csrf_token %}
+                            
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Full Name</label>
                                 <input type="text" name="name" class="form-control" value="{{ employee.name }}" required>
@@ -45,9 +48,17 @@
                                 <input type="text" name="department" class="form-control" value="{{ employee.department|default:'' }}">
                             </div>
 
+                            <!-- Role Dropdown Options (Auto-selects current role) -->
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Role / Designation</label>
-                                <input type="text" name="role" class="form-control" value="{{ employee.role|default:'' }}">
+                                <select name="role" class="form-select" required>
+                                    <option value="" disabled>Select employee role</option>
+                                    <option value="Manager" {% if employee.role == "Manager" %}selected{% endif %}>Manager</option>
+                                    <option value="Electro Engineer" {% if employee.role == "Electro Engineer" %}selected{% endif %}>Electro Engineer</option>
+                                    <option value="Support Staff" {% if employee.role == "Support Staff" %}selected{% endif %}>Support Staff</option>
+                                    <option value="Sales Representative" {% if employee.role == "Sales Representative" %}selected{% endif %}>Sales Representative</option>
+                                    <option value="Technician" {% if employee.role == "Technician" %}selected{% endif %}>Technician</option>
+                                </select>
                             </div>
 
                             <div class="mb-4">
@@ -56,8 +67,12 @@
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary px-4 fw-semibold">Save Changes</button>
+                                <a href="{% url 'employee_list' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary px-4 fw-semibold">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Save Changes
+                                </button>
                             </div>
                         </form>
                     </div>
