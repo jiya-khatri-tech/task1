@@ -255,8 +255,8 @@ def reset_password_form_view(request):
   return render(request, 'main/password_reset_confirm.html')
 
 def admin_register_employee_view(request):
-  # Restrict access to admin/staff users only
   if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
     return redirect('login')
 
   if request.method == 'POST':
@@ -264,25 +264,26 @@ def admin_register_employee_view(request):
     email = request.POST.get('email', '').strip()
     password = request.POST.get('password', '').strip()
     department = request.POST.get('department', '').strip()
-    role = request.POST.get('role', '').strip()
+    role = request.POST.get(
+        'role', ''
+    ).strip()  # Capture selected role from registration form
     phone = request.POST.get('phone', '').strip()
+    # Checkbox returns 'on' if checked, else None/False
+    is_active = True if request.POST.get('is_active') == 'on' else False
 
     if User.objects.filter(email=email).exists():
-      return render(
-          request,
-          'main/admin_register_employee.html',
-          {'error': 'An account with this email already exists.'},
-      )
+      messages.error(request, 'An account with this email already exists.')
+      return render(request, 'main/admin_register_employee.html')
 
     try:
-      # 1. Create the login user account
+      # 1. Create Login User account
       user = User.objects.create_user(
-          username=email, email=email, password=password
+          username=email, email=email, password=password, is_active=is_active
       )
       user.first_name = name
       user.save()
 
-      # 2. Create the Employee profile record
+      # 2. Create Employee profile instance with the selected role and active status
       Employee.objects.create(
           user=user,
           name=name,
@@ -290,35 +291,18 @@ def admin_register_employee_view(request):
           department=department,
           role=role,
           phone=phone,
+          is_active=is_active,
       )
 
-      return redirect(
-          'dashboard'
-      )  # Or redirect to an employee list/success page
+      messages.success(request, f'Employee "{name}" registered successfully!')
+      return redirect('employee_list')
     except Exception as e:
-      return render(
-          request,
-          'main/admin_register_employee.html',
-          {'error': f'Error creating employee: {str(e)}'},
-      )
+      messages.error(request, f'Error creating employee: {str(e)}')
+      return render(request, 'main/admin_register_employee.html')
 
   return render(request, 'main/admin_register_employee.html')
 
-def employee_list_view(request):
-  # Restrict access to admin/staff users only
-  if not request.user.is_authenticated or not request.user.is_staff:
-    messages.error(request, 'Access denied. Administrative privileges required.')
-    return redirect('login')
 
-  # Fetch all registered employees in descending order of creation
-  employees = Employee.objects.all().order_by('-created_at')
-  return render(
-      request, 'main/employee_list.html', {'employees': employees}
-  )
-  
-  # -------------------------------------------------------------------
-# EDIT EMPLOYEE VIEW (Pre-populate with current data)
-# -------------------------------------------------------------------
 def edit_employee_view(request, employee_id):
   if not request.user.is_authenticated or not request.user.is_staff:
     messages.error(request, 'Access denied. Administrator privileges required.')
@@ -334,43 +318,34 @@ def edit_employee_view(request, employee_id):
     name = request.POST.get('name', '').strip()
     email = request.POST.get('email', '').strip()
     department = request.POST.get('department', '').strip()
-    role = request.POST.get('role', '').strip()
+    role = request.POST.get('role', '').strip()  # Updated role instance
     phone = request.POST.get('phone', '').strip()
-
-    # Basic Validation
-    if not name or not email or not role:
-      messages.error(request, 'Name, email, and role fields are required.')
-      return render(
-          request, 'main/edit_employee.html', {'employee': employee}
-      )
+    is_active = True if request.POST.get('is_active') == 'on' else False
 
     try:
-      # Validate and update Employee record fields in the database
+      # Update employee model instance fields
       employee.name = name
       employee.email = email
       employee.department = department
-      employee.role = role
+      employee.role = role  # Update selected role
       employee.phone = phone
+      employee.is_active = is_active
       employee.save()
 
-      # Sync with Django User account model
+      # Sync active status and details with associated User account
       if employee.user:
         user = employee.user
         user.email = email
         user.first_name = name
+        user.is_active = is_active
         user.save()
 
-      # Display success message after update
-      messages.success(
-          request, f'Employee "{name}" has been updated successfully!'
-      )
+      messages.success(request, f'Employee "{name}" updated successfully!')
       return redirect('employee_list')
     except Exception as e:
       messages.error(request, f'Error updating employee: {str(e)}')
 
-  return render(
-      request, 'main/edit_employee.html', {'employee': employee}
-  )
+  return render(request, 'main/edit_employee.html', {'employee': employee})
 
 
 def delete_employee_view(request, employee_id):
@@ -400,3 +375,11 @@ def delete_employee_view(request, employee_id):
   return render(
       request, 'main/delete_employee_confirm.html', {'employee': employee}
   )
+  
+def employee_list_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  employees = Employee.objects.all().order_by('-created_at')
+  return render(request, 'main/employee_list.html', {'employees': employees})

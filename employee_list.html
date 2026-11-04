@@ -52,7 +52,9 @@
                                 <th scope="col">Department</th>
                                 <th scope="col">Role</th>
                                 <th scope="col">Phone</th>
-                                <th scope="col" class="pe-4 text-end">Registered On</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Registered On</th>
+                                <th scope="col" class="pe-4 text-end">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -64,11 +66,31 @@
                                     <td><span class="badge bg-info text-dark">{{ emp.department|default:"N/A" }}</span></td>
                                     <td><span class="badge bg-secondary">{{ emp.role|default:"Staff" }}</span></td>
                                     <td class="text-muted">{{ emp.phone|default:"-" }}</td>
-                                    <td class="pe-4 text-end text-muted small">{{ emp.created_at|date:"M d, Y" }}</td>
+                                    
+                                    <!-- Dynamic Employee Status Badge -->
+                                    <td>
+                                        {% if emp.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+
+                                    <td class="text-muted small">{{ emp.created_at|date:"M d, Y" }}</td>
+                                    
+                                    <!-- Edit and Delete Buttons Column -->
+                                    <td class="pe-4 text-end">
+                                        <a href="{% url 'edit_employee' emp.id %}" class="btn btn-sm btn-outline-primary me-1" title="Edit Employee">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </a>
+                                        <a href="{% url 'delete_employee' emp.id %}" class="btn btn-sm btn-outline-danger" title="Delete Employee">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a>
+                                    </td>
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">
+                                    <td colspan="9" class="text-center py-4 text-muted">
                                         <i class="bi bi-people fs-3 d-block mb-2 text-secondary"></i>
                                         No registered employees found. Click "Register New Employee" to add staff.
                                     </td>
