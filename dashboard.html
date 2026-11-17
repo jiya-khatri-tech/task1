@@ -34,6 +34,20 @@
                                 <i class="bi bi-person-plus-fill me-2"></i> Register Employee
                             </a>
                         </li>
+
+                        <!-- INVENTORY SIDEBAR LINKS -->
+                        <hr class="text-secondary my-2">
+                        <div class="text-uppercase text-secondary small px-2 mb-1 fw-bold" style="font-size: 0.75rem;">Inventory</div>
+                        <li class="nav-item mb-2">
+                            <a href="{% url 'product_list' %}" class="nav-link text-white">
+                                <i class="bi bi-box-seam me-2"></i> Products Inventory
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{% url 'category_list' %}" class="nav-link text-white">
+                                <i class="bi bi-folder me-2"></i> Categories
+                            </a>
+                        </li>
                         {% endif %}
                     </ul>
                     <hr class="text-secondary my-4">
@@ -72,7 +86,6 @@
                 {% endif %}
 
                 <!-- Welcome Banner -->
-                <!-- Welcome Banner with High Contrast Background -->
                 <div class="row mb-4">
                     <div class="col-12">
                         <div class="p-5 text-white rounded shadow-sm" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);">
@@ -102,6 +115,34 @@
                                     </a>
                                     <a href="{% url 'admin_register_employee' %}" class="btn btn-primary px-3 fw-semibold">
                                         <i class="bi bi-person-plus me-1"></i> Register Employee
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INVENTORY MANAGEMENT QUICK ACTION CARDS (Only visible to Admin) -->
+                    <div class="col-12 mb-4">
+                        <div class="card border-0 shadow-sm bg-white border-start border-success border-4">
+                            <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div>
+                                    <h5 class="card-title text-dark fw-bold mb-1">
+                                        <i class="bi bi-boxes text-success me-2"></i> Inventory & Stock Management
+                                    </h5>
+                                    <p class="card-text text-muted small mb-0">Manage electronic product categories, SKUs, pricing, and stock levels.</p>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="{% url 'product_list' %}" class="btn btn-outline-success px-3 fw-semibold">
+                                        <i class="bi bi-box-seam me-1"></i> View Products
+                                    </a>
+                                    <a href="{% url 'add_product' %}" class="btn btn-success px-3 fw-semibold text-white">
+                                        <i class="bi bi-plus-circle me-1"></i> Add Product
+                                    </a>
+                                    <a href="{% url 'category_list' %}" class="btn btn-outline-secondary px-3 fw-semibold">
+                                        <i class="bi bi-folder me-1"></i> Categories
+                                    </a>
+                                    <a href="{% url 'add_category' %}" class="btn btn-outline-dark px-3 fw-semibold">
+                                        <i class="bi bi-folder-plus me-1"></i> Add Category
                                     </a>
                                 </div>
                             </div>

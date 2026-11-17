@@ -6,7 +6,8 @@ from django.core.mail import send_mail
 from django.shortcuts import redirect, render
 from .models import Employee
 from django.contrib import messages
-
+from .forms import CategoryForm,ProductForm
+from .models import Category, Product
 
 # ==========================================
 # 1. REGISTRATION & EMAIL OTP VERIFICATION
@@ -98,30 +99,45 @@ def verify_otp_view(request):
 # ==========================================
 
 
+
+
+
 def login_view(request):
   if request.method == 'POST':
-    username = request.POST.get('username', '').strip()
+    identifier = request.POST.get('email', '').strip()
     password = request.POST.get('password', '').strip()
 
-    user = authenticate(request, username=username, password=password)
+    # Agar user ne email dala hai, toh uske against actual username nikal lo
+    username_to_auth = identifier
+    if '@' in identifier:
+      try:
+        user_obj = User.objects.get(email=identifier)
+        username_to_auth = user_obj.username
+      except User.DoesNotExist:
+        pass  # Agar email database mein nahi hai toh as-is pass karega
+
+    # Ab authenticate karein (chahe username ho ya email)
+    user = authenticate(
+        request, username=username_to_auth, password=password
+    )
+
     if user is not None:
-      if user.is_active:
-        login(request, user)
-        messages.success(
-            request, f'Welcome back, {user.first_name or user.username}!'
-        )
-
-        # Sabhi users (chahe admin ho ya regular client) ko seedha dashboard par bhejein
-        return redirect('dashboard')
-
-      else:
+      # Check if account is active
+      if not user.is_active:
         messages.error(
-            request, 'Account is not activated. Please complete verification.'
+            request,
+            'Your account has been deactivated. Please contact the'
+            ' administrator.',
         )
-        return render(request, 'main/login.html')
+        return redirect('login')
+
+      login(request, user)
+      messages.success(
+          request, f'Welcome back, {user.first_name or user.username}!'
+      )
+      return redirect('dashboard')
     else:
-      messages.error(request, 'Invalid username or password.')
-      return render(request, 'main/login.html')
+      messages.error(request, 'Invalid email/username or password.')
 
   return render(request, 'main/login.html')
 
@@ -383,3 +399,60 @@ def employee_list_view(request):
 
   employees = Employee.objects.all().order_by('-created_at')
   return render(request, 'main/employee_list.html', {'employees': employees})
+
+
+
+def add_category_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  if request.method == 'POST':
+    form = CategoryForm(request.POST)
+    if form.is_valid():
+      form.save()
+      messages.success(request, 'New product category created successfully!')
+      return redirect('category_list')
+    else:
+      messages.error(request, 'Please correct the errors below.')
+  else:
+    form = CategoryForm()
+
+  return render(request, 'main/add_category.html', {'form': form})
+
+
+def add_product_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  if request.method == 'POST':
+    form = ProductForm(request.POST)
+    if form.is_valid():
+      form.save()
+      messages.success(request, 'New product added to inventory successfully!')
+      return redirect('product_list')
+    else:
+      messages.error(request, 'Please correct the errors below.')
+  else:
+    form = ProductForm()
+
+  return render(request, 'main/add_product.html', {'form': form})
+
+
+def product_list_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  products = Product.objects.all().select_related('category').order_by('-created_at')
+  return render(request, 'main/product_list.html', {'products': products})
+
+
+def category_list_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  categories = Category.objects.all().order_by('-created_at')
+  return render(request, 'main/category_list.html', {'categories': categories})

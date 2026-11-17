@@ -46,4 +46,10 @@ urlpatterns = [
         views.delete_employee_view,
         name='delete_employee',
     ),
+    path('products/', views.product_list_view, name='product_list'),
+    path('categories/', views.category_list_view, name='category_list'),
+    path(
+        'add-category/', views.add_category_view, name='add_category'
+    ),  # Category view
+    path('add-product/', views.add_product_view, name='add_product'),
 ]
