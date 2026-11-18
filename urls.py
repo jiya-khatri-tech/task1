@@ -52,4 +52,14 @@ urlpatterns = [
         'add-category/', views.add_category_view, name='add_category'
     ),  # Category view
     path('add-product/', views.add_product_view, name='add_product'),
+    path(
+        'categories/edit/<int:pk>/',
+        views.edit_category_view,
+        name='edit_category',
+    ),
+    path(
+        'categories/delete/<int:pk>/',
+        views.delete_category_view,
+        name='delete_category',
+    ),
 ]

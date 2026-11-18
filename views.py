@@ -8,7 +8,7 @@ from .models import Employee
 from django.contrib import messages
 from .forms import CategoryForm,ProductForm
 from .models import Category, Product
-
+from django.shortcuts import get_object_or_404
 # ==========================================
 # 1. REGISTRATION & EMAIL OTP VERIFICATION
 # ==========================================
@@ -456,3 +456,42 @@ def category_list_view(request):
 
   categories = Category.objects.all().order_by('-created_at')
   return render(request, 'main/category_list.html', {'categories': categories})
+
+
+
+def edit_category_view(request, pk):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  category = get_object_or_404(Category, pk=pk)
+
+  if request.method == 'POST':
+    form = CategoryForm(request.POST, instance=category)
+    if form.is_valid():
+      form.save()
+      messages.success(request, 'Category updated successfully!')
+      return redirect('category_list')
+    else:
+      messages.error(request, 'Please correct the errors below.')
+  else:
+    form = CategoryForm(instance=category)
+
+  return render(
+      request, 'main/edit_category.html', {'form': form, 'category': category}
+  )
+
+
+def delete_category_view(request, pk):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  category = get_object_or_404(Category, pk=pk)
+
+  if request.method == 'POST':
+    category.delete()
+    messages.success(request, 'Category deleted successfully!')
+    return redirect('category_list')
+
+  return render(request, 'main/delete_category_confirm.html', {'category': category})
