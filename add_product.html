@@ -28,6 +28,24 @@
                             {% endfor %}
                         {% endif %}
 
+                        <!-- Form Field Errors -->
+                        {% if form.errors %}
+                            <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-3" role="alert">
+                                <strong>Please fix the following errors:</strong>
+                                <ul class="mb-0 mt-1 small">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    {% for error in form.non_field_errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endif %}
+
                         <!-- Product ModelForm -->
                         <form method="POST">
                             {% csrf_token %}
@@ -43,6 +61,21 @@
                                     {{ form.category }}
                                 </div>
                                 <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-semibold">Product Code</label>
+                                    {{ form.code }}
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">HSN Code</label>
+                                    {{ form.hsn }}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-semibold">UOM</label>
+                                    {{ form.uom }}
+                                </div>
+                                <div class="col-md-4 mb-3">
                                     <label class="form-label fw-semibold">SKU Code</label>
                                     {{ form.sku }}
                                 </div>
