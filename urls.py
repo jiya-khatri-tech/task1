@@ -32,11 +32,6 @@ urlpatterns = [
     ),
     path('employees/', views.employee_list_view, name='employee_list'),
     path(
-        'register-employee/',
-        views.admin_register_employee_view,
-        name='admin_register_employee',
-    ),
-    path(
         'edit-employee/<int:employee_id>/',
         views.edit_employee_view,
         name='edit_employee',
@@ -62,4 +57,12 @@ urlpatterns = [
         views.delete_category_view,
         name='delete_category',
     ),
+    path(
+    'products/<int:pk>/edit/', views.edit_product_view, name='edit_product'
+),
+path(
+    'products/<int:pk>/delete/',
+    views.delete_product_view,
+    name='delete_product',
+),
 ]

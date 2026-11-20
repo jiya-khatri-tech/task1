@@ -1,14 +1,16 @@
 import random
+from django.db.models import Q
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from django.shortcuts import redirect, render
-from .models import Employee
-from django.contrib import messages
-from .forms import CategoryForm,ProductForm
-from .models import Category, Product
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .forms import CategoryForm, ProductForm
+from .models import Category, Employee, Product
+
+
 # ==========================================
 # 1. REGISTRATION & EMAIL OTP VERIFICATION
 # ==========================================
@@ -99,9 +101,6 @@ def verify_otp_view(request):
 # ==========================================
 
 
-
-
-
 def login_view(request):
   if request.method == 'POST':
     identifier = request.POST.get('email', '').strip()
@@ -117,9 +116,7 @@ def login_view(request):
         pass  # Agar email database mein nahi hai toh as-is pass karega
 
     # Ab authenticate karein (chahe username ho ya email)
-    user = authenticate(
-        request, username=username_to_auth, password=password
-    )
+    user = authenticate(request, username=username_to_auth, password=password)
 
     if user is not None:
       # Check if account is active
@@ -140,6 +137,7 @@ def login_view(request):
       messages.error(request, 'Invalid email/username or password.')
 
   return render(request, 'main/login.html')
+
 
 def dashboard_view(request):
   if not request.user.is_authenticated:
@@ -270,6 +268,12 @@ def reset_password_form_view(request):
 
   return render(request, 'main/password_reset_confirm.html')
 
+
+# ==========================================
+# 4. EMPLOYEE MANAGEMENT
+# ==========================================
+
+
 def admin_register_employee_view(request):
   if not request.user.is_authenticated or not request.user.is_staff:
     messages.error(request, 'Access denied. Administrator privileges required.')
@@ -391,7 +395,8 @@ def delete_employee_view(request, employee_id):
   return render(
       request, 'main/delete_employee_confirm.html', {'employee': employee}
   )
-  
+
+
 def employee_list_view(request):
   if not request.user.is_authenticated or not request.user.is_staff:
     messages.error(request, 'Access denied. Administrator privileges required.')
@@ -400,6 +405,10 @@ def employee_list_view(request):
   employees = Employee.objects.all().order_by('-created_at')
   return render(request, 'main/employee_list.html', {'employees': employees})
 
+
+# ==========================================
+# 5. INVENTORY: CATEGORIES & PRODUCTS
+# ==========================================
 
 
 def add_category_view(request):
@@ -440,15 +449,6 @@ def add_product_view(request):
   return render(request, 'main/add_product.html', {'form': form})
 
 
-def product_list_view(request):
-  if not request.user.is_authenticated or not request.user.is_staff:
-    messages.error(request, 'Access denied. Administrator privileges required.')
-    return redirect('login')
-
-  products = Product.objects.all().select_related('category').order_by('-created_at')
-  return render(request, 'main/product_list.html', {'products': products})
-
-
 def category_list_view(request):
   if not request.user.is_authenticated or not request.user.is_staff:
     messages.error(request, 'Access denied. Administrator privileges required.')
@@ -456,7 +456,6 @@ def category_list_view(request):
 
   categories = Category.objects.all().order_by('-created_at')
   return render(request, 'main/category_list.html', {'categories': categories})
-
 
 
 def edit_category_view(request, pk):
@@ -494,4 +493,71 @@ def delete_category_view(request, pk):
     messages.success(request, 'Category deleted successfully!')
     return redirect('category_list')
 
-  return render(request, 'main/delete_category_confirm.html', {'category': category})
+  return render(
+      request, 'main/delete_category_confirm.html', {'category': category}
+  )
+
+
+def product_list_view(request):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  query = request.GET.get('q', '').strip()
+  products = (
+      Product.objects.all().select_related('category').order_by('-created_at')
+  )
+
+  if query:
+    products = products.filter(
+        Q(name__icontains=query) | Q(category__name__icontains=query)
+    )
+
+  return render(
+      request,
+      'main/product_list.html',
+      {
+          'products': products,
+          'search_query': query,
+      },
+  )
+
+
+def edit_product_view(request, pk):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  product = get_object_or_404(Product, pk=pk)
+
+  if request.method == 'POST':
+    form = ProductForm(request.POST, instance=product)
+    if form.is_valid():
+      form.save()
+      messages.success(request, 'Product updated successfully!')
+      return redirect('product_list')
+    else:
+      messages.error(request, 'Please correct the errors below.')
+  else:
+    form = ProductForm(instance=product)
+
+  return render(
+      request, 'main/edit_product.html', {'form': form, 'product': product}
+  )
+
+
+def delete_product_view(request, pk):
+  if not request.user.is_authenticated or not request.user.is_staff:
+    messages.error(request, 'Access denied. Administrator privileges required.')
+    return redirect('login')
+
+  product = get_object_or_404(Product, pk=pk)
+
+  if request.method == 'POST':
+    product.delete()
+    messages.success(request, 'Product deleted successfully!')
+    return redirect('product_list')
+
+  return render(
+      request, 'main/delete_product_confirm.html', {'product': product}
+  )
