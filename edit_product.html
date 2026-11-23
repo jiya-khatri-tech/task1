@@ -18,10 +18,10 @@
                         <h3 class="fw-bold text-dark mb-1">Edit Product</h3>
                         <p class="text-muted small mb-4">Plexus Electro CRM - Update {{ product.name }}</p>
 
-                        <!-- Messages -->
+                        <!-- Dynamic Django Messages (Success & Error Feedback) -->
                         {% if messages %}
                             {% for message in messages %}
-                                <div class="alert alert-danger alert-dismissible fade show shadow-sm mb-3" role="alert">
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags|default:'info' }}{% endif %} alert-dismissible fade show shadow-sm mb-3" role="alert">
                                     {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
