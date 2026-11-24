@@ -47,3 +47,18 @@ class Product(models.Model):
 
   def __str__(self):
     return f'{self.name} ({self.code})'
+
+
+class Customer(models.Model):
+  name = models.CharField(max_length=150)
+  email = models.EmailField(unique=True)
+  password = models.CharField(max_length=128)
+  creator = models.ForeignKey(
+      User,
+      on_delete=models.CASCADE,
+      related_name='created_customers',
+  )
+  created_at = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return self.name

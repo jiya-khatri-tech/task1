@@ -9,6 +9,18 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('logout/', views.logout_view, name='logout'),
+    path('customers/', views.customer_list_view, name='customer_list'),
+    path('customers/add/', views.add_customer_view, name='add_customer'),
+    path(
+        'customers/<int:pk>/edit/',
+        views.edit_customer_view,
+        name='edit_customer',
+    ),
+    path(
+        'customers/<int:pk>/delete/',
+        views.delete_customer_view,
+        name='delete_customer',
+    ),
     # Password Reset Flow
     path(
         'forgot-password/',

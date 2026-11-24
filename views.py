@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import CategoryForm, ProductForm
-from .models import Category, Employee, Product
+from .forms import CategoryForm, CustomerForm, ProductForm
+from .models import Category, Customer, Employee, Product
 
 
 # ==========================================
@@ -143,6 +143,80 @@ def dashboard_view(request):
   if not request.user.is_authenticated:
     return redirect('login')
   return render(request, 'main/dashboard.html', {'user': request.user})
+
+
+def customer_list_view(request):
+  if not request.user.is_authenticated:
+    return redirect('login')
+
+  customers = Customer.objects.filter(creator=request.user).order_by('-created_at')
+  return render(
+      request,
+      'main/customer_list.html',
+      {'customers': customers},
+  )
+
+
+def add_customer_view(request):
+  if not request.user.is_authenticated:
+    return redirect('login')
+
+  if request.method == 'POST':
+    form = CustomerForm(request.POST)
+    if form.is_valid():
+      customer = form.save(commit=False)
+      customer.creator = request.user
+      customer.password = make_password(form.cleaned_data['password'])
+      customer.save()
+      messages.success(request, f'Customer "{customer.name}" registered successfully!')
+      return redirect('customer_list')
+  else:
+    form = CustomerForm()
+
+  return render(request, 'main/add_customer.html', {'form': form})
+
+
+def edit_customer_view(request, pk):
+  if not request.user.is_authenticated:
+    return redirect('login')
+
+  customer = get_object_or_404(Customer, pk=pk, creator=request.user)
+  if request.method == 'POST':
+    form = CustomerForm(request.POST, instance=customer)
+    if form.is_valid():
+      customer = form.save(commit=False)
+      password = form.cleaned_data.get('password')
+      if password:
+        customer.password = make_password(password)
+      customer.save()
+      messages.success(request, f'Customer "{customer.name}" updated successfully!')
+      return redirect('customer_list')
+  else:
+    form = CustomerForm(instance=customer)
+
+  return render(
+      request,
+      'main/edit_customer.html',
+      {'form': form, 'customer': customer},
+  )
+
+
+def delete_customer_view(request, pk):
+  if not request.user.is_authenticated:
+    return redirect('login')
+
+  customer = get_object_or_404(Customer, pk=pk, creator=request.user)
+  if request.method == 'POST':
+    customer_name = customer.name
+    customer.delete()
+    messages.success(request, f'Customer "{customer_name}" deleted successfully!')
+    return redirect('customer_list')
+
+  return render(
+      request,
+      'main/delete_customer_confirm.html',
+      {'customer': customer},
+  )
 
 
 def logout_view(request):
