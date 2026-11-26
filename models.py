@@ -53,6 +53,7 @@ class Customer(models.Model):
   name = models.CharField(max_length=150)
   email = models.EmailField(unique=True)
   password = models.CharField(max_length=128)
+  is_active = models.BooleanField(default=True)
   creator = models.ForeignKey(
       User,
       on_delete=models.CASCADE,

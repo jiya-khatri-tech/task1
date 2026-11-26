@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -149,11 +150,19 @@ def customer_list_view(request):
   if not request.user.is_authenticated:
     return redirect('login')
 
-  customers = Customer.objects.filter(creator=request.user).order_by('-created_at')
+  customers = Customer.objects.filter(creator=request.user).order_by(
+      '-created_at', '-pk'
+  )
+  customers = Paginator(customers, 10).get_page(request.GET.get('page'))
   return render(
       request,
       'main/customer_list.html',
-      {'customers': customers},
+      {
+          'customers': customers,
+          'page_range': customers.paginator.get_elided_page_range(
+              number=customers.number
+          ),
+      },
   )
 
 

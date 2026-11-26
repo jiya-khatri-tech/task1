@@ -23,12 +23,14 @@ class CustomerTests(TestCase):
             'email': 'customer@example.com',
             'password': 'CustomerPass123!',
             'confirm_password': 'CustomerPass123!',
+            'is_active': 'on',
         },
     )
 
     self.assertRedirects(response, reverse('customer_list'))
     customer = Customer.objects.get(email='customer@example.com')
     self.assertEqual(customer.creator, self.user)
+    self.assertTrue(customer.is_active)
     self.assertTrue(check_password('CustomerPass123!', customer.password))
 
   def test_customer_is_private_to_creator(self):
@@ -49,6 +51,37 @@ class CustomerTests(TestCase):
     response = self.client.get(reverse('customer_list'))
 
     self.assertNotContains(response, 'Private Customer')
+
+  def test_customer_list_displays_status_and_paginates(self):
+    Customer.objects.create(
+        name='Active Customer',
+        email='active@example.com',
+        password='hashed-password',
+        creator=self.user,
+    )
+    Customer.objects.create(
+        name='Inactive Customer',
+        email='inactive@example.com',
+        password='hashed-password',
+        creator=self.user,
+        is_active=False,
+    )
+    for customer_number in range(9):
+      Customer.objects.create(
+          name=f'Customer {customer_number}',
+          email=f'customer{customer_number}@example.com',
+          password='hashed-password',
+          creator=self.user,
+      )
+
+    first_page = self.client.get(reverse('customer_list'))
+    second_page = self.client.get(reverse('customer_list'), {'page': 2})
+
+    self.assertEqual(first_page.context['customers'].paginator.num_pages, 2)
+    self.assertContains(first_page, 'Inactive Customer')
+    self.assertContains(first_page, 'bg-danger">Inactive</span>')
+    self.assertContains(second_page, 'Active Customer')
+    self.assertContains(second_page, 'bg-success">Active</span>')
 
 
 class ProductCategoryUpdateTests(TestCase):
