@@ -1,4 +1,5 @@
 import random
+from django.db.models.deletion import ProtectedError, RestrictedError
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -217,7 +218,18 @@ def delete_customer_view(request, pk):
   customer = get_object_or_404(Customer, pk=pk, creator=request.user)
   if request.method == 'POST':
     customer_name = customer.name
-    customer.delete()
+    try:
+      customer.delete()
+    except (ProtectedError, RestrictedError):
+      messages.error(
+          request,
+          'This customer cannot be deleted because it is referenced by other records.',
+      )
+      return render(
+          request,
+          'main/delete_customer_confirm.html',
+          {'customer': customer},
+      )
     messages.success(request, f'Customer "{customer_name}" deleted successfully!')
     return redirect('customer_list')
 

@@ -12,6 +12,9 @@
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
                     <h3 class="fw-bold">Delete Customer</h3>
+                    {% for message in messages %}
+                        <div class="alert alert-danger" role="alert">{{ message }}</div>
+                    {% endfor %}
                     <p>Are you sure you want to delete <strong>{{ customer.name }}</strong>?</p>
                     <form method="post">
                         {% csrf_token %}
